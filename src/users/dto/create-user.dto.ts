@@ -11,5 +11,5 @@ export class CreateUserDto {
 
   @IsPositive()
   @IsNotEmpty()
-  readonly idUserType: number;
+  readonly typeId: number;
 }

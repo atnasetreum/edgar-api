@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { UserTypesService } from 'src/user-types/user-types.service';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { CreateUserDto, UpdateUserDto } from './dto';
+import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -18,9 +18,7 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const userType = await this.userTypeService.findOne(
-      createUserDto.idUserType,
-    );
+    const userType = await this.userTypeService.findOne(createUserDto.typeId);
 
     try {
       const userCreate = await this.userRepository.create({
@@ -39,13 +37,15 @@ export class UsersService {
     }
   }
 
-  async findAll() {
+  async findAll(query: QueryUserDto) {
     try {
       const users = await this.userRepository.find({
         where: {
+          ...(query.id && { id: query.id }),
           isActive: true,
           userType: {
             isActive: true,
+            ...(query.typeId && { id: query.typeId }),
           },
         },
         relations: ['userType'],
@@ -57,31 +57,6 @@ export class UsersService {
     } catch (error) {
       this.commonService.handleExceptions({
         ref: 'findAll',
-        error,
-        logger: this.logger,
-      });
-    }
-  }
-
-  async usersDrivers() {
-    try {
-      const users = await this.userRepository.find({
-        select: {
-          id: true,
-          name: true,
-        },
-        where: {
-          isActive: true,
-          userType: {
-            name: 'DRIVER',
-          },
-        },
-        relations: ['userType'],
-      });
-      return users;
-    } catch (error) {
-      this.commonService.handleExceptions({
-        ref: 'usersDrivers',
         error,
         logger: this.logger,
       });
@@ -159,17 +134,17 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
     try {
-      const { name, password, idUserType } = updateUserDto;
+      const { name, password, typeId } = updateUserDto;
       const userPreload = await this.userRepository.preload({
+        id,
         ...(name && { name }),
         ...(password && { password }),
-        ...(idUserType && {
-          userType: await this.userTypeService.findOne(idUserType),
+        ...(typeId && {
+          userType: await this.userTypeService.findOne(typeId),
         }),
       });
-      const user = await this.userRepository.update(id, userPreload);
+      const user = await this.userRepository.save(userPreload);
       return user;
-      return '';
     } catch (error) {
       this.commonService.handleExceptions({
         ref: 'update',
@@ -180,10 +155,10 @@ export class UsersService {
   }
 
   async remove(id: number) {
-    await this.findOne(id);
+    const user = await this.findOne(id);
     try {
       await this.userRepository.delete(id);
-      return 'ok';
+      return user;
     } catch (error) {
       this.commonService.handleExceptions({
         ref: 'remove',

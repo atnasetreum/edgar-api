@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EnvConfiguration, JoiValidationSchema } from './config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { AuditsModule } from './audits/audits.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -30,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     UsersModule,
     UserTypesModule,
+    AuditsModule,
   ],
   controllers: [],
   providers: [],

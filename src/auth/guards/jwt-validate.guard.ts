@@ -21,7 +21,9 @@ export class JwtValidateGuard implements CanActivate {
       throw new BadRequestException('Token no encontrado.');
     }
 
-    this.commonService.decodedJwt(token);
+    const { id } = this.commonService.decodedJwt(token) as { id: number };
+
+    req.userId = id;
 
     return true;
   }
