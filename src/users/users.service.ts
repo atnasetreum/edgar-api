@@ -1,10 +1,13 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { UserTypesService } from 'src/user-types/user-types.service';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
+import { Request } from 'express';
+import { REQUEST } from '@nestjs/core';
+import { EMethodNames } from 'src/common/entities/audit.entity';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +18,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     private readonly commonService: CommonService,
     private readonly userTypeService: UserTypesService,
+    @Inject(REQUEST) private readonly request: Request,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -27,6 +31,9 @@ export class UsersService {
         userType,
       });
       const user = await this.userRepository.save(userCreate);
+      await this.commonService.saveAudit(EMethodNames.CREATE, {
+        message: `Creo el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      });
       return user;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -150,6 +157,9 @@ export class UsersService {
         }),
       });
       const user = await this.userRepository.save(userPreload);
+      await this.commonService.saveAudit(EMethodNames.UPDATE, {
+        message: `Actualizo el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      });
       return user;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -164,6 +174,9 @@ export class UsersService {
     const user = await this.findOne(id);
     try {
       await this.userRepository.delete(id);
+      await this.commonService.saveAudit(EMethodNames.DELETE, {
+        message: `Elimino el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      });
       return user;
     } catch (error) {
       this.commonService.handleExceptions({

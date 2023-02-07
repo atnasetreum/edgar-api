@@ -9,9 +9,9 @@ import {
 } from 'typeorm';
 
 export enum EMethodNames {
-  CREATE = 'CREATE',
-  UPDATE = 'UPDATE',
-  DELETE = 'DELETE',
+  CREATE = 'Creacion',
+  UPDATE = 'Actualizacion',
+  DELETE = 'Eliminacion',
 }
 
 @Entity('audits')
@@ -23,10 +23,10 @@ export class Audit {
     type: 'enum',
     enum: EMethodNames,
   })
-  methodName: string;
+  methodName: EMethodNames;
 
   @Column('jsonb', { default: {} })
-  data: string;
+  data: object;
 
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;

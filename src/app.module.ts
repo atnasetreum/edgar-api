@@ -7,7 +7,10 @@ import { ConfigModule } from '@nestjs/config';
 import { EnvConfiguration, JoiValidationSchema } from './config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import { AuditsModule } from './audits/audits.module';
+import { MainProductCategoriesModule } from './main-product-categories/main-product-categories.module';
+import { ProductCategoriesModule } from './product-categories/product-categories.module';
+import { ProductsModule } from './products/products.module';
+import { ProductPricesModule } from './product-prices/product-prices.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -28,10 +31,14 @@ import { AuditsModule } from './audits/audits.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    AuthModule,
+    //AuthModule,
     UsersModule,
     UserTypesModule,
-    AuditsModule,
+    // AuditsModule,
+    // MainProductCategoriesModule,
+    // ProductCategoriesModule,
+    // ProductsModule,
+    // ProductPricesModule,
   ],
   controllers: [],
   providers: [],

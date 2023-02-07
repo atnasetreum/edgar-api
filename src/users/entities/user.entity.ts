@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import * as argon2 from 'argon2';
 import { UserType } from 'src/user-types/entities/user-type.entity';
-import { Audit } from 'src/audits/entities/audit.entity';
+import { Audit } from 'src/common/entities/audit.entity';
 
 @Entity('users')
 @Unique(['name', 'userType'])

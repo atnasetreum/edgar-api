@@ -4,19 +4,26 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { REQUEST } from '@nestjs/core';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
+import { Repository } from 'typeorm';
+import { Audit, EMethodNames } from './entities/audit.entity';
 
 @Injectable()
 export class CommonService {
   private secretKey: string;
+  private readonly logger = new Logger(CommonService.name);
   constructor(
     @Inject(REQUEST) private readonly request,
     private readonly configService: ConfigService,
+    @InjectRepository(Audit)
+    private readonly auditRepository: Repository<Audit>,
   ) {
     this.secretKey = this.configService.get<string>('jwt.secretKey');
   }
@@ -125,6 +132,24 @@ export class CommonService {
       throw new UnauthorizedException(
         `Credenciales no validas: ${error.message}`,
       );
+    }
+  }
+
+  async saveAudit(methodName: EMethodNames, data: object) {
+    try {
+      const auditCreate = await this.auditRepository.create({
+        methodName,
+        user: this.request.user,
+        data,
+      });
+      const audit = await this.auditRepository.save(auditCreate);
+      return audit;
+    } catch (error) {
+      this.handleExceptions({
+        ref: 'saveAudit',
+        error,
+        logger: this.logger,
+      });
     }
   }
 }

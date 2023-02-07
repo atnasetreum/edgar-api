@@ -6,14 +6,16 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { CommonService } from 'src/common/common.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class JwtValidateGuard implements CanActivate {
-  constructor(private readonly commonService: CommonService) {}
+  constructor(
+    private readonly commonService: CommonService,
+    private readonly usersService: UsersService,
+  ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
     const token = (req.headers['authorization'] || '').replace('Bearer ', '');
 
@@ -23,7 +25,9 @@ export class JwtValidateGuard implements CanActivate {
 
     const { id } = this.commonService.decodedJwt(token) as { id: number };
 
-    req.userId = id;
+    const user = await this.usersService.findOne(id);
+
+    req.user = user;
 
     return true;
   }
