@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserTypesService } from './user-types.service';
 import { CreateUserTypeDto, UpdateUserTypeDto } from './dto';
+import { JwtValidateGuard } from 'src/auth/guards';
 
 @Controller('user-types')
+@UseGuards(JwtValidateGuard)
 export class UserTypesController {
   constructor(private readonly userTypesService: UserTypesService) {}
 

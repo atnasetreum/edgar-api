@@ -7,6 +7,7 @@ import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
+import { actionsConnstants } from 'src/constants';
 
 @Injectable()
 export class UsersService {
@@ -30,8 +31,8 @@ export class UsersService {
         userType,
       });
       const user = await this.userRepository.save(userCreate);
-      await this.commonService.saveAudit('Creacion', {
-        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit(actionsConnstants.CREATE, {
+        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {
@@ -156,8 +157,8 @@ export class UsersService {
         }),
       });
       const user = await this.userRepository.save(userPreload);
-      await this.commonService.saveAudit('Actualizacion', {
-        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit(actionsConnstants.UPDATE, {
+        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {
@@ -173,8 +174,8 @@ export class UsersService {
     const user = await this.findOne(id);
     try {
       await this.userRepository.delete(id);
-      await this.commonService.saveAudit('Eliminacion', {
-        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit(actionsConnstants.DELETE, {
+        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {

@@ -13,8 +13,9 @@ import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
 import { QueryHistoryDto } from 'src/histories/dto/query-history.dto';
-import { Repository } from 'typeorm';
-import { Audit, EMethodNames } from './entities/audit.entity';
+import { User } from 'src/users/entities/user.entity';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { Audit } from './entities/audit.entity';
 
 @Injectable()
 export class CommonService {
@@ -138,9 +139,10 @@ export class CommonService {
 
   async saveAudit(methodName: string, data: object) {
     try {
+      const user = this.request.user as User;
       const auditCreate = await this.auditRepository.create({
         methodName,
-        user: this.request.user,
+        user,
         data,
       });
       const audit = await this.auditRepository.save(auditCreate);
@@ -155,14 +157,29 @@ export class CommonService {
   }
 
   async getAllAudit(query: QueryHistoryDto) {
+    const user = this.request.user as User;
+
+    const where: FindOptionsWhere<Audit> = { isActive: true };
+
+    if (query.id) {
+      where.id = query.id;
+    }
+
+    if (query.methodName) {
+      where.methodName = query.methodName;
+    }
+
+    if (user.userType.name === 'ADMIN') {
+      if (query.userId) {
+        where.user = { id: query.userId };
+      }
+    } else {
+      where.user = { id: user.id };
+    }
+
     try {
       const users = await this.auditRepository.find({
-        where: {
-          ...(query.id && { id: query.id }),
-          ...(query.methodName && { methodName: query.methodName }),
-          ...(query.userId && { user: { id: query.userId } }),
-          isActive: true,
-        },
+        where,
         relations: {
           user: {
             userType: true,

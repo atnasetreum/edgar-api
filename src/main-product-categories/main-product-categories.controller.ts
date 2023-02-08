@@ -15,7 +15,6 @@ import {
   UpdateMainProductCategoryDto,
   QueryMainProductCategoryDto,
 } from './dto';
-import { UsersService } from 'src/users/users.service';
 import { JwtValidateGuard } from 'src/auth/guards';
 
 @Controller('main-product-categories')
@@ -23,7 +22,6 @@ import { JwtValidateGuard } from 'src/auth/guards';
 export class MainProductCategoriesController {
   constructor(
     private readonly mainProductCategoriesService: MainProductCategoriesService,
-    private readonly usersService: UsersService,
   ) {}
 
   @Post()
