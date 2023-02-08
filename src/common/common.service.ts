@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as jwt from 'jsonwebtoken';
+import { QueryHistoryDto } from 'src/histories/dto/query-history.dto';
 import { Repository } from 'typeorm';
 import { Audit, EMethodNames } from './entities/audit.entity';
 
@@ -135,7 +136,7 @@ export class CommonService {
     }
   }
 
-  async saveAudit(methodName: EMethodNames, data: object) {
+  async saveAudit(methodName: string, data: object) {
     try {
       const auditCreate = await this.auditRepository.create({
         methodName,
@@ -147,6 +148,34 @@ export class CommonService {
     } catch (error) {
       this.handleExceptions({
         ref: 'saveAudit',
+        error,
+        logger: this.logger,
+      });
+    }
+  }
+
+  async getAllAudit(query: QueryHistoryDto) {
+    try {
+      const users = await this.auditRepository.find({
+        where: {
+          ...(query.id && { id: query.id }),
+          ...(query.methodName && { methodName: query.methodName }),
+          ...(query.userId && { user: { id: query.userId } }),
+          isActive: true,
+        },
+        relations: {
+          user: {
+            userType: true,
+          },
+        },
+        order: {
+          id: 'DESC',
+        },
+      });
+      return users;
+    } catch (error) {
+      this.handleExceptions({
+        ref: 'getAllAudit',
         error,
         logger: this.logger,
       });

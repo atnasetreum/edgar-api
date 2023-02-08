@@ -7,7 +7,6 @@ import { CreateUserDto, QueryUserDto, UpdateUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
-import { EMethodNames } from 'src/common/entities/audit.entity';
 
 @Injectable()
 export class UsersService {
@@ -31,8 +30,8 @@ export class UsersService {
         userType,
       });
       const user = await this.userRepository.save(userCreate);
-      await this.commonService.saveAudit(EMethodNames.CREATE, {
-        message: `Creo el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit('Creacion', {
+        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {
@@ -157,8 +156,8 @@ export class UsersService {
         }),
       });
       const user = await this.userRepository.save(userPreload);
-      await this.commonService.saveAudit(EMethodNames.UPDATE, {
-        message: `Actualizo el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit('Actualizacion', {
+        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {
@@ -174,8 +173,8 @@ export class UsersService {
     const user = await this.findOne(id);
     try {
       await this.userRepository.delete(id);
-      await this.commonService.saveAudit(EMethodNames.DELETE, {
-        message: `Elimino el usuario con => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+      await this.commonService.saveAudit('Eliminacion', {
+        message: `ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
       });
       return user;
     } catch (error) {

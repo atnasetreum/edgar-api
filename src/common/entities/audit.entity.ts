@@ -19,11 +19,8 @@ export class Audit {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: 'enum',
-    enum: EMethodNames,
-  })
-  methodName: EMethodNames;
+  @Column('text')
+  methodName: string;
 
   @Column('jsonb', { default: {} })
   data: object;
