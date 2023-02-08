@@ -1,8 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
+import { actionsConnstants } from 'src/constants';
 import { Repository } from 'typeorm';
-import { CreateUserTypeDto, UpdateUserTypeDto } from './dto';
+import { CreateUserTypeDto, QueryUserTypeDto, UpdateUserTypeDto } from './dto';
 import { UserType } from './entities/user-type.entity';
 
 @Injectable()
@@ -21,6 +22,9 @@ export class UserTypesService {
         createUserTypeDto,
       );
       const userType = await this.userTypeRepository.save(userTypeCreate);
+      await this.commonService.saveAudit(actionsConnstants.CREATE, {
+        message: `Tipo de usuario => ID: ${userType.id}, nombre: ${userType.name}`,
+      });
       return userType;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -31,7 +35,7 @@ export class UserTypesService {
     }
   }
 
-  async findAll() {
+  async findAll(query: QueryUserTypeDto) {
     try {
       const userTypes = await this.userTypeRepository.find({
         where: {
@@ -67,40 +71,18 @@ export class UserTypesService {
     }
   }
 
-  // async findOneBy(where: FindOptionsWhere<UserType>) {
-  //   try {
-  //     const userTypes = await this.userTypeRepository.findOne({
-  //       where: {
-  //         ...where,
-  //         isActive: true,
-  //       },
-  //     });
-
-  //     if (!userTypes) {
-  //       throw new NotFoundException('UserType not found');
-  //     }
-
-  //     return userTypes;
-  //   } catch (error) {
-  //     this.commonService.handleExceptions({
-  //       ref: 'findOneBy',
-  //       error,
-  //       logger: this.logger,
-  //     });
-  //   }
-  // }
-
   async update(id: number, updateUserTypeDto: UpdateUserTypeDto) {
     await this.findOne(id);
     try {
       const { name } = updateUserTypeDto;
       const userTypePreload = await this.userTypeRepository.preload({
+        id,
         ...(name && { name }),
       });
-      const userType = await this.userTypeRepository.update(
-        id,
-        userTypePreload,
-      );
+      const userType = await this.userTypeRepository.save(userTypePreload);
+      await this.commonService.saveAudit(actionsConnstants.UPDATE, {
+        message: `Tipo de Usuario => ID: ${userType.id}, nombre: ${userType.name}`,
+      });
       return userType;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -112,9 +94,13 @@ export class UserTypesService {
   }
 
   async remove(id: number) {
+    const userType = await this.findOne(id);
     try {
       await this.userTypeRepository.delete(id);
-      return 'ok';
+      await this.commonService.saveAudit(actionsConnstants.DELETE, {
+        message: `Tipo de Usuario => ID: ${userType.id}, nombre: ${userType.name}`,
+      });
+      return userType;
     } catch (error) {
       this.commonService.handleExceptions({
         ref: 'remove',

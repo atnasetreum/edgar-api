@@ -7,9 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserTypesService } from './user-types.service';
-import { CreateUserTypeDto, UpdateUserTypeDto } from './dto';
+import { CreateUserTypeDto, QueryUserTypeDto, UpdateUserTypeDto } from './dto';
 import { JwtValidateGuard } from 'src/auth/guards';
 
 @Controller('user-types')
@@ -23,8 +24,8 @@ export class UserTypesController {
   }
 
   @Get()
-  findAll() {
-    return this.userTypesService.findAll();
+  findAll(@Query() query: QueryUserTypeDto) {
+    return this.userTypesService.findAll(query);
   }
 
   @Get(':id')
