@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { actionsConnstants } from 'src/constants';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { CreateUserTypeDto, QueryUserTypeDto, UpdateUserTypeDto } from './dto';
 import { UserType } from './entities/user-type.entity';
 
@@ -40,6 +40,12 @@ export class UserTypesService {
       const userTypes = await this.userTypeRepository.find({
         where: {
           isActive: true,
+          ...(query.id && { id: query.id }),
+          // ...(query?.name && {
+          //   name: Raw(
+          //     (alias) => `LOWER(${alias}) Like '%${query.name.toLowerCase()}%'`,
+          //   ),
+          // }),
         },
       });
       return userTypes;

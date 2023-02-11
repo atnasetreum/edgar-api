@@ -7,10 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductCategoriesService } from './product-categories.service';
-import { CreateProductCategoryDto } from './dto/create-product-category.dto';
-import { UpdateProductCategoryDto } from './dto/update-product-category.dto';
+import {
+  CreateProductCategoryDto,
+  UpdateProductCategoryDto,
+  QueryProductCategoryDto,
+} from './dto';
 import { JwtValidateGuard } from 'src/auth/guards';
 
 @Controller('product-categories')
@@ -26,8 +30,8 @@ export class ProductCategoriesController {
   }
 
   @Get()
-  findAll() {
-    return this.productCategoriesService.findAll();
+  findAll(@Query() query: QueryProductCategoryDto) {
+    return this.productCategoriesService.findAll(query);
   }
 
   @Get(':id')

@@ -1,9 +1,11 @@
+import { ProductCategory } from 'src/product-categories/entities/product-category.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('main_product_categories')
@@ -22,4 +24,10 @@ export class MainProductCategory {
 
   @UpdateDateColumn()
   updatedAt: number;
+
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.mainProductCategory,
+  )
+  productCategories: ProductCategory[];
 }
