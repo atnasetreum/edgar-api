@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { actionsConnstants } from 'src/constants';
-import { Raw, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserTypeDto, QueryUserTypeDto, UpdateUserTypeDto } from './dto';
 import { UserType } from './entities/user-type.entity';
 
@@ -16,15 +16,22 @@ export class UserTypesService {
     private readonly commonService: CommonService,
   ) {}
 
+  getMeesageAudit(userType) {
+    return {
+      message: `Tipo de usuario => ID: ${userType.id}, nombre: ${userType.name}`,
+    };
+  }
+
   async create(createUserTypeDto: CreateUserTypeDto) {
     try {
       const userTypeCreate = await this.userTypeRepository.create(
         createUserTypeDto,
       );
       const userType = await this.userTypeRepository.save(userTypeCreate);
-      await this.commonService.saveAudit(actionsConnstants.CREATE, {
-        message: `Tipo de usuario => ID: ${userType.id}, nombre: ${userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.CREATE,
+        this.getMeesageAudit(userType),
+      );
       return userType;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -86,9 +93,10 @@ export class UserTypesService {
         ...(name && { name }),
       });
       const userType = await this.userTypeRepository.save(userTypePreload);
-      await this.commonService.saveAudit(actionsConnstants.UPDATE, {
-        message: `Tipo de Usuario => ID: ${userType.id}, nombre: ${userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.UPDATE,
+        this.getMeesageAudit(userType),
+      );
       return userType;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -103,9 +111,10 @@ export class UserTypesService {
     const userType = await this.findOne(id);
     try {
       await this.userTypeRepository.delete(id);
-      await this.commonService.saveAudit(actionsConnstants.DELETE, {
-        message: `Tipo de Usuario => ID: ${userType.id}, nombre: ${userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.DELETE,
+        this.getMeesageAudit(userType),
+      );
       return userType;
     } catch (error) {
       this.commonService.handleExceptions({

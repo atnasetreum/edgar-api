@@ -1,4 +1,5 @@
 import { ProductCategory } from 'src/product-categories/entities/product-category.entity';
+import { Product } from 'src/products/entities/product.entity';
 import {
   Entity,
   Column,
@@ -30,4 +31,7 @@ export class MainProductCategory {
     (productCategory) => productCategory.mainProductCategory,
   )
   productCategories: ProductCategory[];
+
+  @OneToMany(() => Product, (product) => product.mainCategory)
+  products: Product[];
 }

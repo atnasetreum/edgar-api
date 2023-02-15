@@ -22,15 +22,22 @@ export class MainProductCategoriesService {
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
+  getMeesageAudit(mpc) {
+    return {
+      message: `Categoria principal => ID: ${mpc.id}, nombre: ${mpc.name}`,
+    };
+  }
+
   async create(createMainProductCategoryDto: CreateMainProductCategoryDto) {
     try {
       const mpcCreate = await this.mpcRepository.create(
         createMainProductCategoryDto,
       );
       const mpc = await this.mpcRepository.save(mpcCreate);
-      await this.commonService.saveAudit(actionsConnstants.CREATE, {
-        message: `Categoria principal => ID: ${mpc.id}, nombre: ${mpc.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.CREATE,
+        this.getMeesageAudit(mpc),
+      );
       return mpc;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -99,9 +106,10 @@ export class MainProductCategoriesService {
         ...updateMainProductCategoryDto,
       });
       const mpc = await this.mpcRepository.save(mpcPreload);
-      await this.commonService.saveAudit(actionsConnstants.UPDATE, {
-        message: `Categoria principal => ID: ${mpc.id}, nombre: ${mpc.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.UPDATE,
+        this.getMeesageAudit(mpc),
+      );
       return mpc;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -116,9 +124,10 @@ export class MainProductCategoriesService {
     const mpc = await this.findOne(id);
     try {
       await this.mpcRepository.delete(id);
-      await this.commonService.saveAudit(actionsConnstants.DELETE, {
-        message: `Categoria principal => ID: ${mpc.id}, nombre: ${mpc.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.DELETE,
+        this.getMeesageAudit(mpc),
+      );
       return mpc;
     } catch (error) {
       this.commonService.handleExceptions({

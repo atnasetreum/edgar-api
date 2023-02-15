@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   Unique,
+  OneToMany,
 } from 'typeorm';
 import { MainProductCategory } from 'src/main-product-categories/entities/main-product-category.entity';
+import { Product } from 'src/products/entities/product.entity';
 
 @Entity('product_categories')
 @Unique(['name', 'mainProductCategory'])
@@ -32,4 +34,7 @@ export class ProductCategory {
     (mainProductCategory) => mainProductCategory.productCategories,
   )
   mainProductCategory: MainProductCategory;
+
+  @OneToMany(() => Product, (product) => product.category)
+  products: Product[];
 }

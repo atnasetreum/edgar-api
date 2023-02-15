@@ -8,7 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { MainProductCategoriesModule } from './main-product-categories/main-product-categories.module';
 import { ProductCategoriesModule } from './product-categories/product-categories.module';
 import { ProductsModule } from './products/products.module';
-import { ProductPricesModule } from './product-prices/product-prices.module';
 import { HistoriesModule } from './histories/histories.module';
 @Module({
   imports: [
@@ -33,7 +32,6 @@ import { HistoriesModule } from './histories/histories.module';
     MainProductCategoriesModule,
     ProductCategoriesModule,
     ProductsModule,
-    ProductPricesModule,
     HistoriesModule,
   ],
   controllers: [],

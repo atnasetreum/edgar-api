@@ -21,6 +21,12 @@ export class UsersService {
     @Inject(REQUEST) private readonly request: Request,
   ) {}
 
+  getMeesageAudit(user) {
+    return {
+      message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
+    };
+  }
+
   async create(createUserDto: CreateUserDto) {
     const userType = await this.userTypeService.findOne(createUserDto.typeId);
 
@@ -31,9 +37,10 @@ export class UsersService {
         userType,
       });
       const user = await this.userRepository.save(userCreate);
-      await this.commonService.saveAudit(actionsConnstants.CREATE, {
-        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.CREATE,
+        this.getMeesageAudit(user),
+      );
       return user;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -157,9 +164,10 @@ export class UsersService {
         }),
       });
       const user = await this.userRepository.save(userPreload);
-      await this.commonService.saveAudit(actionsConnstants.UPDATE, {
-        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.UPDATE,
+        this.getMeesageAudit(user),
+      );
       return user;
     } catch (error) {
       this.commonService.handleExceptions({
@@ -174,9 +182,10 @@ export class UsersService {
     const user = await this.findOne(id);
     try {
       await this.userRepository.delete(id);
-      await this.commonService.saveAudit(actionsConnstants.DELETE, {
-        message: `Usuario => ID: ${user.id}, nombre: ${user.name}, tipo: ${user.userType.name}`,
-      });
+      await this.commonService.saveAudit(
+        actionsConnstants.DELETE,
+        this.getMeesageAudit(user),
+      );
       return user;
     } catch (error) {
       this.commonService.handleExceptions({
