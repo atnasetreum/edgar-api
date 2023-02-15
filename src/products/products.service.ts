@@ -125,8 +125,12 @@ export class ProductsService {
     }
   }
 
+  getDifference(a, b) {
+    return a > b ? a - b : b - a;
+  }
+
   async update(id: number, updateProductDto: UpdateProductDto) {
-    await this.findOne(id);
+    const { price: pricePreview } = await this.findOne(id);
     const mainCategory = await this.mainProductCategoriesService.findOne(
       updateProductDto.mainCategoryId,
     );
@@ -143,6 +147,13 @@ export class ProductsService {
         category,
       });
       const product = await this.productRepository.save(productPreload);
+
+      const diffPrice = this.getDifference(pricePreview, price);
+
+      if (diffPrice !== 0) {
+        await this.createPrice(product, price);
+      }
+
       await this.commonService.saveAudit(
         actionsConnstants.UPDATE,
         this.getMeesageAudit(product),
