@@ -9,6 +9,7 @@ import { MainProductCategoriesModule } from './main-product-categories/main-prod
 import { ProductCategoriesModule } from './product-categories/product-categories.module';
 import { ProductsModule } from './products/products.module';
 import { HistoriesModule } from './histories/histories.module';
+import { ComandasModule } from './comandas/comandas.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -33,6 +34,7 @@ import { HistoriesModule } from './histories/histories.module';
     ProductCategoriesModule,
     ProductsModule,
     HistoriesModule,
+    ComandasModule,
   ],
   controllers: [],
   providers: [],

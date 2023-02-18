@@ -23,7 +23,7 @@ export class ProductPrice {
   createdAt: string;
 
   @UpdateDateColumn()
-  updatedAt: number;
+  updatedAt: string;
 
   @ManyToOne(() => Product, (product) => product.prices)
   product: Product;

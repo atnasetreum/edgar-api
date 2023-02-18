@@ -24,7 +24,7 @@ export class MainProductCategory {
   createdAt: string;
 
   @UpdateDateColumn()
-  updatedAt: number;
+  updatedAt: string;
 
   @OneToMany(
     () => ProductCategory,

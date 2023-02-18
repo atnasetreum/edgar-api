@@ -27,7 +27,7 @@ export class AuthService {
   }
 
   async login(loginAuthDto: LoginAuthDto) {
-    const user = await this.userService.findOneBy({ id: loginAuthDto.id });
+    const user = await this.userService.findOne(loginAuthDto.id);
     if (await argon2.verify(user.password, loginAuthDto.password)) {
       return this.responseUserSession(user);
     }
@@ -41,7 +41,7 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales no validas');
     }
     const { id } = this.commonService.decodedJwt(token);
-    const user = await this.userService.findOneBy(id);
+    const user = await this.userService.findOne(id);
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }

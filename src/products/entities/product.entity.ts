@@ -6,19 +6,19 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique,
   ManyToOne,
   OneToMany,
 } from 'typeorm';
 import { ProductPrice } from './product-prices.entity';
+import { Order } from 'src/comandas/entities';
+import { OrderProduct } from 'src/comandas/entities/order-products.entity';
 
 @Entity('products')
-@Unique(['name'])
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text')
+  @Column('text', { unique: true })
   name: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -31,7 +31,7 @@ export class Product {
   createdAt: string;
 
   @UpdateDateColumn()
-  updatedAt: number;
+  updatedAt: string;
 
   @ManyToOne(() => MainProductCategory, (mpc) => mpc.products)
   mainCategory: MainProductCategory;
@@ -41,4 +41,7 @@ export class Product {
 
   @OneToMany(() => ProductPrice, (productPrice) => productPrice.product)
   prices: ProductPrice[];
+
+  @OneToMany(() => OrderProduct, (order) => order.product)
+  orders: Order[];
 }

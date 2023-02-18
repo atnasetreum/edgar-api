@@ -6,24 +6,15 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
+import { Comanda } from './comanda.entity';
+import { OrderProduct } from './order-products.entity';
 
-export enum EMethodNames {
-  CREATE = 'Creacion',
-  UPDATE = 'Actualizacion',
-  DELETE = 'Eliminacion',
-}
-
-@Entity('audits')
-export class Audit {
+@Entity('orders')
+export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column('text')
-  methodName: string;
-
-  @Column('jsonb', { default: {} })
-  data: object;
 
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;
@@ -34,6 +25,12 @@ export class Audit {
   @UpdateDateColumn()
   updatedAt: string;
 
-  @ManyToOne(() => User, (user) => user.audits)
+  @ManyToOne(() => Comanda, (comanda) => comanda.orders)
+  comanda: Comanda;
+
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
+  products: OrderProduct[];
+
+  @ManyToOne(() => User, (user) => user.orders)
   user: User;
 }
