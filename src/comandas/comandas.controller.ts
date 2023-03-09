@@ -12,6 +12,7 @@ import {
 import { JwtValidateGuard } from 'src/auth/guards';
 import { ComandasService } from './comandas.service';
 import {
+  AddOrderDto,
   CreateComandaDto,
   QueryComandaDto,
   QueryOrderDto,
@@ -26,6 +27,11 @@ export class ComandasController {
   @Post()
   create(@Body() createComandaDto: CreateComandaDto) {
     return this.comandasService.create(createComandaDto);
+  }
+
+  @Post('add-order')
+  addOrder(@Body() addOrderDto: AddOrderDto) {
+    return this.comandasService.addOrder(addOrderDto);
   }
 
   @Get()

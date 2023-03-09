@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
@@ -7,6 +7,7 @@ import { ProductsService } from 'src/products/products.service';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import {
+  AddOrderDto,
   CreateComandaDto,
   QueryComandaDto,
   QueryOrderDto,
@@ -40,11 +41,10 @@ export class ComandasService {
   async getProducts(products) {
     const array = [];
     for (let i = 0, t = products.length; i < t; i++) {
-      const { productId, count, note } = products[i];
+      const { productId, note } = products[i];
       const product = await this.productsService.findOne(productId);
       array.push({
         product,
-        count,
         note,
       });
     }
@@ -123,6 +123,40 @@ export class ComandasService {
     }
   }
 
+  async addOrder(addOrderDto: AddOrderDto) {
+    const user = this.request.user as User;
+    const bebida = await this.getProducts(addOrderDto.bebida);
+    const comida = await this.getProducts(addOrderDto.comida);
+    const products = [...bebida, ...comida].map((row) => ({ ...row.product }));
+    const comanda = await this.findOne(addOrderDto.comandaId);
+
+    try {
+      const order = await this.createOrders({
+        bebida,
+        comida,
+        user,
+        comanda,
+      });
+
+      await this.comandaRepository.save({
+        ...comanda,
+        orders: [...comanda.orders, order],
+        products: [...comanda.products, ...products],
+      });
+
+      await this.commonService.saveAudit(actionsConnstants.CREATE, {
+        message: `Orden => ID: ${order.id}, mesa: ${comanda.mesa}, comanda: ${comanda.id}`,
+      });
+      return order;
+    } catch (error) {
+      this.commonService.handleExceptions({
+        ref: 'addOrder',
+        error,
+        logger: this.logger,
+      });
+    }
+  }
+
   async findAll(query: QueryComandaDto) {
     try {
       const comandas = await this.comandaRepository.find({
@@ -131,8 +165,21 @@ export class ComandasService {
           ...(query.state && { state: query.state }),
         },
         relations: {
-          products: true,
-          orders: true,
+          products: {
+            mainCategory: true,
+            category: true,
+          },
+          orders: {
+            user: {
+              userType: true,
+            },
+            products: {
+              product: {
+                mainCategory: true,
+                category: true,
+              },
+            },
+          },
           user: {
             userType: true,
           },
@@ -197,8 +244,50 @@ export class ComandasService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comanda`;
+  async findOne(id: number) {
+    try {
+      const comanda = await this.comandaRepository.findOne({
+        where: {
+          id,
+          isActive: true,
+        },
+        relations: {
+          products: {
+            mainCategory: true,
+            category: true,
+          },
+          orders: {
+            user: {
+              userType: true,
+            },
+            products: {
+              product: {
+                mainCategory: true,
+                category: true,
+              },
+            },
+          },
+          user: {
+            userType: true,
+          },
+        },
+        order: {
+          id: 'DESC',
+        },
+      });
+
+      if (!comanda) {
+        throw new NotFoundException('Comanda no encontrada');
+      }
+
+      return comanda;
+    } catch (error) {
+      this.commonService.handleExceptions({
+        ref: 'findOne',
+        error,
+        logger: this.logger,
+      });
+    }
   }
 
   async update(id: number, updateComandaDto: UpdateComandaDto) {

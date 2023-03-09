@@ -17,10 +17,10 @@ class BebidaOrComida {
   readonly note: string;
 }
 
-export class CreateComandaDto {
+export class AddOrderDto {
   @IsPositive()
   @IsNotEmpty()
-  readonly mesa: number;
+  readonly comandaId: number;
 
   @IsArray()
   @ValidateNested({ each: true })

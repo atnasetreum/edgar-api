@@ -20,7 +20,7 @@ export class Comanda {
   @Column()
   mesa: number;
 
-  @Column('text', { default: 'En progreso' })
+  @Column('text', { default: 'Pendiente por pagar' })
   state: string;
 
   @Column({ default: true, name: 'is_active' })

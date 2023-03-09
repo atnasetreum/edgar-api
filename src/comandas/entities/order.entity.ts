@@ -16,6 +16,9 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column('text', { default: 'En Progreso' })
+  state: string;
+
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;
 

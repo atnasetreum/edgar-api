@@ -17,9 +17,6 @@ export class OrderProduct {
   @Column('text')
   type: string;
 
-  @Column()
-  count: number;
-
   @Column('text')
   note: string;
 
