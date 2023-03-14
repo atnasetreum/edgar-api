@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { JwtValidateGuard } from 'src/auth/guards';
 import { ComandasService } from './comandas.service';
@@ -32,6 +33,11 @@ export class ComandasController {
   @Post('add-order')
   addOrder(@Body() addOrderDto: AddOrderDto) {
     return this.comandasService.addOrder(addOrderDto);
+  }
+
+  @Post('orders/complete/:id')
+  completeOrder(@Param('id', ParseIntPipe) id: number) {
+    return this.comandasService.completeOrder(id);
   }
 
   @Get()

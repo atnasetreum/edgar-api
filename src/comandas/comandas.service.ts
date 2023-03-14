@@ -157,6 +157,29 @@ export class ComandasService {
     }
   }
 
+  async completeOrder(id: number) {
+    const orderPreview = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['comanda'],
+    });
+
+    if (!orderPreview) {
+      throw new NotFoundException('No se encontró la orden');
+    }
+
+    const orderPreload = await this.orderRepository.preload({
+      id,
+      ...orderPreview,
+      state: 'Completada',
+    });
+    const order = await this.orderRepository.save(orderPreload);
+    await this.commonService.saveAudit(actionsConnstants.UPDATE, {
+      message: `Orden Completada => ID: ${order.id}, mesa: ${order.comanda.mesa}, comanda: ${order.comanda.id}`,
+    });
+
+    return order;
+  }
+
   async findAll(query: QueryComandaDto) {
     try {
       const comandas = await this.comandaRepository.find({
@@ -204,6 +227,7 @@ export class ComandasService {
       const orders = await this.orderRepository.find({
         where: {
           isActive: true,
+          state: 'En Progreso',
         },
         relations: {
           products: {
